@@ -43,6 +43,12 @@ server.listen(app.get('port'), function(){
 });
 
 // Socket.io
+if('production' == app.get('env')){
+  io.configure(function () {
+    io.set("transports", ["xhr-polling"]);
+    io.set("polling duration", 10);
+  });
+}
 var clients = {};
 io.sockets.on('connection', function(socket){
   console.log(socket.id);
