@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  canvas#myCanvas(style='width:400px; height:400px;')
+  div.
+    <script type="text/paperscript" canvas="myCanvas">
+      var socket = io.connect('http://localhost');
+      console.log(socket.id);
+      socket.on('move', function (data) {
+        console.log(data);
+      });
+
+    </script>
