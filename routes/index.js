@@ -4,5 +4,5 @@
  */
 
 exports.index = function(req, res){
-  res.render('index', { title: 'Express', host: host_for_client});
+  res.render('index', { title: 'Express', env: current_environment});
 };

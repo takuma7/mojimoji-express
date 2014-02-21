@@ -24,10 +24,16 @@ block content
         button#down v
       td
   script(type='text/paperscript', canvas='myCanvas').
-    io.configure(function () {
-      io.set("transports", ["xhr-polling"]);
-      io.set("polling duration", 10);
-    });
+    var host;
+    if("#{env}" == "production"){
+      io.configure(function () {
+        io.set("transports", ["xhr-polling"]);
+        io.set("polling duration", 10);
+      });
+      host = location.origin;
+    }else{
+      host = 'http://localhost';
+    }
     var socket = io.connect('#{host}');
 
     socket.on('connect', function(data){
