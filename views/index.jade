@@ -26,10 +26,6 @@ block content
   script(type='text/paperscript', canvas='myCanvas').
     var host;
     if("#{env}" == "production"){
-      io.configure(function () {
-        io.set("transports", ["xhr-polling"]);
-        io.set("polling duration", 10);
-      });
       host = location.origin;
     }else{
       host = 'http://localhost';
