@@ -24,6 +24,10 @@ block content
         button#down v
       td
   script(type='text/paperscript', canvas='myCanvas').
+    io.configure(function () {
+      io.set("transports", ["xhr-polling"]);
+      io.set("polling duration", 10);
+    });
     var socket = io.connect('#{host}');
 
     socket.on('connect', function(data){
