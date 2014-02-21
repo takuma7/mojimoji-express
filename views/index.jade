@@ -24,7 +24,7 @@ block content
         button#down v
       td
   script(type='text/paperscript', canvas='myCanvas').
-    var socket = io.connect('http://localhost');
+    var socket = io.connect('#{host}');
 
     socket.on('connect', function(data){
       console.log(socket.socket.sessionid);

@@ -33,6 +33,8 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+host_for_client = app.get('env') == 'production' ? 'http://mojimoji.herokuapp.com/' : 'http://localhost';
+
 app.get('/', routes.index);
 app.get('/users', user.list);
 
