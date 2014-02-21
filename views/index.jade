@@ -2,14 +2,106 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
   canvas#myCanvas(style='width:400px; height:400px;')
-  div.
-    <script type="text/paperscript" canvas="myCanvas">
-      var socket = io.connect('http://localhost');
-      console.log(socket.id);
-      socket.on('move', function (data) {
-        console.log(data);
-      });
+  form#text-form
+    input(name='text')
+    input(type='submit', value='change text')
+  table
+    tr
+      td
+      td
+        button#up ^
+      td
+    tr
+      td
+        button#left <
+      td
+      td
+        button#right >
+    tr
+      td
+      td
+        button#down v
+      td
+  script(type='text/paperscript', canvas='myCanvas').
+    var socket = io.connect('http://localhost');
 
-    </script>
+    socket.on('connect', function(data){
+      console.log(socket.socket.sessionid);
+    });
+
+    var clients = {};
+    var me = new PointText(view.center);
+    me.content = "test";
+    socket.emit('set text', {text: me.content});
+    socket.emit('move', {
+      x: me.position.x,
+      y: me.position.y,
+      vx: 0,
+      vy: 0
+    });
+
+    socket.on('setup', function(data){
+      $.each(data.clients, function(id, client){
+        console.log(id);
+        clients[id] = new PointText(new Point(client.x, client.y));
+        clients[id].content = client.text;
+      });
+    });
+
+    socket.on('set text', function (data) {
+      if(clients[data.id]){
+        clients[data.id].content = data.text;
+      }else{
+        clients[data.id] = new PointText(view.center);
+        clients[data.id].content = data.text;
+      }
+    });
+
+    $('#text-form').submit(function(){
+      var text = $(this).find('input[name=text]').val();
+      if(!text){
+        return false;
+      }
+      socket.emit('set text', {text:text});
+      me.content = text;
+      return false;
+    });
+
+    socket.on('move', function (data) {
+      clients[data.id].position = new Point(data.x, data.y);
+    });
+
+    function move(dx, dy){
+      me.position.x += dx;
+      me.position.y += dy;
+      socket.emit('move', {
+        x:me.position.x,
+        y:me.position.y,
+        vx:0,
+        vy:0
+      });
+    }
+    $('#up').click(function(){
+      move(0, -10);
+    });
+    $('#down').click(function(){
+      move(0, 10);
+    });
+    $('#left').click(function(){
+      move(-10, 0);
+    });
+    $('#right').click(function(){
+      move(10, 0);
+    });
+
+    function onFrame(event){
+    }
+
+    socket.on('user connected', function(data){
+    });
+    socket.on('user disconnected', function(data){
+      console.log('user disconnected: ' + data.id);
+      clients[data.id].remove();
+      delete clients[data.id];
+    });

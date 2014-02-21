@@ -41,10 +41,33 @@ server.listen(app.get('port'), function(){
 });
 
 // Socket.io
+var clients = {};
 io.sockets.on('connection', function(socket){
-  console.log(socket.io);
-  socket.on('disconnect', function(){
-    socket.broadcast.emit('user disconnected', {id: socket.id});
+  console.log(socket.id);
+  clients[socket.id] = {};
+  socket.broadcast.emit('user connected', {
+    id: socket.id
   });
-
+  socket.emit('setup', {clients:clients});
+  socket.on('disconnect', function(){
+    delete clients[socket.id];
+    io.sockets.emit('user disconnected', {id: socket.id});
+  });
+  socket.on('move', function(data){
+    clients[socket.id].x = data.x;
+    clients[socket.id].y = data.y;
+    clients[socket.id].vx = data.vx;
+    clients[socket.id].vy = data.vy;
+    socket.broadcast.emit('move', {
+      id: socket.id,
+      x: data.x,
+      y: data.y,
+      vx: data.vx,
+      vy: data.vy});
+  });
+  socket.on('set text', function(data){
+    console.log('set text: ' + data.text);
+    clients[socket.id].text = data.text;
+    socket.broadcast.emit('set text', {id:socket.id, text:data.text});
+  });
 });
