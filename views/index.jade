@@ -1,8 +1,8 @@
 extends layout
 
 block content
-  h1= title
-  canvas#myCanvas(style='width:400px; height:400px;')
+  // h1= title
+  canvas#myCanvas(style='width:400px; height:400px; border: 1px solid #fff')
   form#text-form
     input(name='text')
     input(type='submit', value='change text')
@@ -37,8 +37,14 @@ block content
     });
 
     var clients = {};
-    var me = new PointText(view.center);
-    me.content = "test";
+    var me = new PointText({
+      point:view.center,
+      content: 'test',
+      fillColor: 'white',
+      fontFamily: 'Courier New',
+      fontWeight: 'bold',
+      fontSize: '30'
+      });
     socket.emit('set text', {text: me.content});
     socket.emit('move', {
       x: me.position.x,
@@ -75,7 +81,11 @@ block content
     });
 
     socket.on('move', function (data) {
-      clients[data.id].position = new Point(data.x, data.y);
+      if(clients[data.id]) {
+        clients[data.id].position = new Point(data.x, data.y);
+      }else{
+        clients[data.id] = new PointText(data.x, data.y);
+      }
     });
 
     function move(dx, dy){
