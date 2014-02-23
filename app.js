@@ -56,7 +56,7 @@ io.sockets.on('connection', function(socket){
   socket.broadcast.emit('user connected', {
     id: socket.id
   });
-  socket.emit('setup', {clients:clients});
+  socket.emit('setup', {width: 800, height: 600,clients:clients});
   socket.on('disconnect', function(){
     delete clients[socket.id];
     io.sockets.emit('user disconnected', {id: socket.id});
@@ -64,14 +64,16 @@ io.sockets.on('connection', function(socket){
   socket.on('move', function(data){
     clients[socket.id].x = data.x;
     clients[socket.id].y = data.y;
-    clients[socket.id].vx = data.vx;
-    clients[socket.id].vy = data.vy;
+    clients[socket.id].fx = data.fx;
+    clients[socket.id].fy = data.fy;
+    clients[socket.id].r = data.r;
     socket.broadcast.emit('move', {
       id: socket.id,
       x: data.x,
       y: data.y,
-      vx: data.vx,
-      vy: data.vy});
+      fx: data.fx,
+      fy: data.fy,
+      r: data.r});
   });
   socket.on('set text', function(data){
     console.log('set text: ' + data.text);
