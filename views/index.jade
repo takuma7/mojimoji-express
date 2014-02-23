@@ -57,6 +57,7 @@ block content
       clients[data.id].y += m * gy;
       clients[data.id].pointText.position = new Point(x, y);
       clients[data.id].circle.position = new Point(x, y);
+      console.log(clients[data.id]);
     });
 
     socket.on('message updated', function(data){
