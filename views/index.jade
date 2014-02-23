@@ -56,7 +56,7 @@ block content
     socket.on('setup', function(data){
       $.each(data.clients, function(id, client){
         console.log(id);
-        clients[id] = new PointText(new Point(client.x - client.r, client.y));
+        clients[id] = new PointText(new Point(client.x + client.r, client.y));
         clients[id].content = client.text;
         clients[id].circle = new Shape.Circle(new Point(client.x, client.y), client.r);
         clients[id].circle.strokeColor = 'black';
@@ -84,10 +84,10 @@ block content
 
     socket.on('move', function (data) {
       if(clients[data.id]) {
-        clients[data.id].position = new Point(data.x - data.r, data.y);
+        clients[data.id].position = new Point(data.x + data.r, data.y);
         clients[data.id].circle.position = new Point(data.x, data.y);
       }else{
-        clients[data.id] = new PointText(data.x - data.r, data.y);
+        clients[data.id] = new PointText(data.x + data.r, data.y);
         clients[data.id].circle = new Shape.Circle(new Point(data.x, data.y), data.r);
         clients[data.id].circle.strokeColor = 'black';
       }
@@ -124,6 +124,7 @@ block content
     });
     socket.on('user disconnected', function(data){
       console.log('user disconnected: ' + data.id);
+      clients[data.id].circle.remove();
       clients[data.id].remove();
       delete clients[data.id];
     });
