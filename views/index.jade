@@ -45,6 +45,7 @@ block content
       fontWeight: 'bold',
       fontSize: '30'
       });
+    me.position = new Point(view.center);
     socket.emit('set text', {text: me.content});
     socket.emit('move', {
       x: me.position.x,
@@ -57,8 +58,9 @@ block content
       console.log(data);
       $.each(data.clients, function(id, client){
         console.log(id);
-        clients[id] = new PointText(new Point(client.x + client.r, client.y));
+        clients[id] = new PointText(new Point(client.x, client.y));
         clients[id].content = client.text;
+        clients[id].position = new Point(client.x, client.y);
         clients[id].circle = new Shape.Circle(new Point(client.x, client.y), client.r);
         clients[id].circle.strokeColor = 'black';
       });
@@ -69,7 +71,6 @@ block content
       if(clients[data.id]){
         console.log('text changed on ' + data.id + ' to: ' + data.text);
         clients[data.id].content = data.text;
-        console.log(clients[data.id].strokeBounds);
       }else{
         clients[data.id] = new PointText(view.center);
         clients[data.id].content = data.text;
@@ -83,16 +84,17 @@ block content
       }
       socket.emit('set text', {text:text});
       me.content = text;
+      me.position = new Pont(view.center);
       return false;
     });
 
     socket.on('move', function (data) {
       // console.log(data);
       if(clients[data.id]) {
-        clients[data.id].position = new Point(data.x - clients[data.id].bounds.width/2, data.y);
+        clients[data.id].position = new Point(data.x, data.y);
         clients[data.id].circle.position = new Point(data.x, data.y);
       }else{
-        clients[data.id] = new PointText(data.x - data.r, data.y);
+        clients[data.id] = new PointText(data.x, data.y);
         clients[data.id].circle = new Shape.Circle(new Point(data.x, data.y), data.r);
         clients[data.id].circle.strokeColor = 'black';
       }
