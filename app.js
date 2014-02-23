@@ -68,14 +68,14 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('set radius', function(data){
-    clients[data.id].r = data.r;
+    clients[socket.id].r = data.r;
     socket.broadcast.emit('radius updated', {id: socket.id, r: data.r});
   });
 
   socket.on('set gravity', function(data){
     console.log(data);
-    clients[data.id].gx = data.gx;
-    clients[data.id].gy = data.gy;
+    clients[socket.id].gx = data.gx;
+    clients[socket.id].gy = data.gy;
     io.sockets.emit('gravity updated', {id:data.id, gx:data.gx, gy:data.gy});
   });
 
