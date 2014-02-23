@@ -90,7 +90,7 @@ block content
       // console.log(data);
       if(clients[data.id]) {
         var strokeBounds = clients[data.id].strokeBounds;
-        clients[data.id].position = new Point(data.x - strokeBounds.x/2, data.y);
+        clients[data.id].position = new Point(data.x - strokeBounds.width/2, data.y);
         clients[data.id].circle.position = new Point(data.x, data.y);
       }else{
         clients[data.id] = new PointText(data.x - data.r, data.y);
