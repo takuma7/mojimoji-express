@@ -3,26 +3,6 @@ extends layout
 block content
   // h1= title
   canvas#myCanvas(style='width:800px; height:600px; border: 1px solid #111')
-  form#text-form
-    input(name='text')
-    input(type='submit', value='change text')
-  table
-    tr
-      td
-      td
-        button#up ^
-      td
-    tr
-      td
-        button#left <
-      td
-      td
-        button#right >
-    tr
-      td
-      td
-        button#down v
-      td
   script(type='text/paperscript', canvas='myCanvas').
     var host;
     if("#{env}" == "production"){
@@ -37,101 +17,51 @@ block content
     });
 
     var clients = {};
-    var me = new PointText({
-      point:view.center,
-      content: 'test',
-      // fillColor: 'white',
-      fontFamily: 'Courier New',
-      fontWeight: 'bold',
-      fontSize: '30'
-      });
-    me.position = new Point(view.center);
-    socket.emit('set text', {text: me.content});
-    socket.emit('move', {
-      x: me.position.x,
-      y: me.position.y,
-      vx: 0,
-      vy: 0
-    });
 
-    socket.on('setup', function(data){
+    socket.on('init', function (data) {
       console.log(data);
-      $.each(data.clients, function(id, client){
-        console.log(id);
-        clients[id] = new PointText(new Point(client.x, client.y));
-        clients[id].content = client.text;
-        clients[id].position = new Point(client.x, client.y);
-        clients[id].circle = new Shape.Circle(new Point(client.x, client.y), client.r);
-        clients[id].circle.strokeColor = 'black';
-      });
-    });
-
-    socket.on('set text', function (data) {
-      console.log(data);
-      if(clients[data.id]){
-        console.log('text changed on ' + data.id + ' to: ' + data.text);
-        clients[data.id].content = data.text;
-      }else{
-        clients[data.id] = new PointText(view.center);
-        clients[data.id].content = data.text;
+      $('#myCanvas').css({width:data.canvas.width + 'px', height:data.canvas.height + 'px'});
+      clients = data.clients;
+      for(var id in clients){
+        if(clients[id].x && clients[id].y){
+          clients[id].pointText = new PointText(new Point(0,0));
+          clients[id].pointText.content = clients[id].message;
+          clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+          clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
+          clients[id].circle.strokeColor = 'black';
+        }
       }
     });
 
-    $('#text-form').submit(function(){
-      var text = $(this).find('input[name=text]').val();
-      if(!text){
-        return false;
+    socket.on('position updated', function (data) {
+      for(var id in data.clients){
+        if( data.clients[id].x && data.clients[id].y ){
+          clients[id].x = data.clients[id].x;
+          clients[id].y = data.clients[id].y;
+          if(clients[id].pointText){
+            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+            clients[id].circle.position = new Point(clients[id].x, clients[id].y);
+          }else{
+            clients[id].pointText = new PointText(new Point(0, 0));
+            clients[id].pointText.content = clients[id].message;
+            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+            clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
+            clients[id].circle.strokeColor = 'black';
+          }
+        }
       }
-      socket.emit('set text', {text:text});
-      me.content = text;
-      me.position = new Pont(view.center);
-      return false;
-    });
-
-    socket.on('move', function (data) {
-      // console.log(data);
-      if(clients[data.id]) {
-        clients[data.id].position = new Point(data.x, data.y);
-        clients[data.id].circle.position = new Point(data.x, data.y);
-      }else{
-        clients[data.id] = new PointText(data.x, data.y);
-        clients[data.id].circle = new Shape.Circle(new Point(data.x, data.y), data.r);
-        clients[data.id].circle.strokeColor = 'black';
-      }
-    });
-
-    function move(dx, dy){
-      me.position.x += dx;
-      me.position.y += dy;
-      socket.emit('move', {
-        x:me.position.x,
-        y:me.position.y,
-        fx:0,
-        fy:0,
-        r: 20
-      });
-    }
-    $('#up').click(function(){
-      move(0, -10);
-    });
-    $('#down').click(function(){
-      move(0, 10);
-    });
-    $('#left').click(function(){
-      move(-10, 0);
-    });
-    $('#right').click(function(){
-      move(10, 0);
     });
 
     function onFrame(event){
     }
 
-    socket.on('user connected', function(data){
+    socket.on('client added', function(data){
+      console.log('user connected: ' + data.id);
+      clients[data.id] = {id: data.id};
     });
-    socket.on('user disconnected', function(data){
+    socket.on('client deleted', function(data){
       console.log('user disconnected: ' + data.id);
       clients[data.id].circle.remove();
-      clients[data.id].remove();
+      clients[data.id].pointText.remove();
       delete clients[data.id];
     });

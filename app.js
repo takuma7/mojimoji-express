@@ -50,34 +50,58 @@ server.listen(app.get('port'), function(){
   // });
 // }
 var clients = {};
+var width = 800;
+var height = 600;
+var m = 10;
+var freq = 24;
+
 io.sockets.on('connection', function(socket){
   console.log(socket.id);
-  clients[socket.id] = {};
-  socket.broadcast.emit('user connected', {
-    id: socket.id
-  });
-  socket.emit('setup', {width: 800, height: 600,clients:clients});
+  clients[socket.id] = {id: socket.id};
+
+  socket.emit('init', {canvas: {width: width, height: height}, clients: clients});
+  socket.broadcast.emit('client added', {id: socket.id});
+
   socket.on('disconnect', function(){
     delete clients[socket.id];
-    io.sockets.emit('user disconnected', {id: socket.id});
+    io.sockets.emit('client deleted', {id: socket.id});
   });
-  socket.on('move', function(data){
-    clients[socket.id].x = data.x;
-    clients[socket.id].y = data.y;
-    clients[socket.id].fx = data.fx;
-    clients[socket.id].fy = data.fy;
-    clients[socket.id].r = data.r;
-    socket.broadcast.emit('move', {
-      id: socket.id,
-      x: data.x,
-      y: data.y,
-      fx: data.fx,
-      fy: data.fy,
-      r: data.r});
+
+  socket.on('set radius', function(data){
+    clients[data.id].r = data.r;
+    socket.broadcast.emit('radius updated', {id: socket.id, r: data.r});
   });
-  socket.on('set text', function(data){
-    console.log('set text: ' + data.text);
-    clients[socket.id].text = data.text;
-    socket.broadcast.emit('set text', {id:socket.id, text:data.text});
+
+  socket.on('set gravity', function(data){
+    clients[data.id].gx = data.gx;
+    clients[data.id].gy = data.gy;
+  });
+
+  socket.on('set message', function(data){
+    clients[socket.id].message = data.message;
+    socket.broadcast.emit('update message', {id:socket.id, message:data.message});
   });
 });
+
+setInterval(function(){
+  for(var id in clients){
+    if( !clients[id].gx || !clients[id].gy || !clients[id].r) continue;
+    if( !clients[id].x ){
+      clients[id].x = width/2;
+      clients[id].y = height/2;
+    }
+    var gx = clients[id].gx;
+    var gy = clients[id].gy;
+    if((clients[id].x <= clients[id].r && gx < 0) ||
+       (width - clients[id].x <= clients[id].r && gx > 0)){
+      gx *= -1;
+    }
+    if((clients[id].y <= clients[id].r && gy < 0) ||
+       (width - clients[id].y <= clients[id].r && gy > 0)){
+      gy *= -1;
+    }
+    clients[id].x += m * gx;
+    clients[id].x += m * gy;
+  }
+  io.sockets.emit('position updated', {clients: clients});
+}, 1000/freq);
