@@ -56,6 +56,8 @@ block content
     });
 
     socket.on('message updated', function(data){
+      console.log(data);
+      console.log(clients);
       if( !clients[data.id].pointText ){
         clients[data.id].pointText.content = data.message;
         clients[data.id].pointText.position = new Point(clients[data.id].x, clients[data.id].y);
