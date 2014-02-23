@@ -65,6 +65,7 @@ block content
 
     socket.on('set text', function (data) {
       if(clients[data.id]){
+        console.log('text changed on ' + data.id + ' to: ' + data.text);
         clients[data.id].content = data.text;
       }else{
         clients[data.id] = new PointText(view.center);
