@@ -29,8 +29,7 @@ block content
     });
 
     socket.on('gravity updated', function(data) {
-      console.log(data);
-      if( !clients[data.id].circle || !clients[data.id].pointText ){
+      if( !clients[data.id] || !clients[data.id].circle || !clients[data.id].pointText ){
         return;
       }
       if( !clients[data.id].x ){
