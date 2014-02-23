@@ -73,6 +73,7 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('set gravity', function(data){
+    console.log(data);
     clients[data.id].gx = data.gx;
     clients[data.id].gy = data.gy;
     io.sockets.emit('gravity updated', {id:data.id, gx:data.gx, gy:data.gy});

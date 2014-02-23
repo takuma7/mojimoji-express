@@ -4,13 +4,7 @@ block content
   // h1= title
   canvas#myCanvas(style='width:800px; height:600px; border: 1px solid #111')
   script(type='text/paperscript', canvas='myCanvas').
-    var host;
-    if("#{env}" == "production"){
-      host = location.origin;
-    }else{
-      host = 'http://localhost';
-    }
-    var socket = io.connect('#{host}');
+    var socket = io.connect(location.origin);
 
     socket.on('connect', function(data){
       console.log(socket.socket.sessionid);
