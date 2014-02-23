@@ -17,6 +17,7 @@ block content
     });
 
     var clients = {};
+    var m = 10;
 
     socket.on('init', function (data) {
       console.log(data);
@@ -33,24 +34,41 @@ block content
       }
     });
 
-    socket.on('position updated', function (data) {
-      for(var id in data.clients){
-        if( data.clients[id].x && data.clients[id].y ){
-          clients[id].x = data.clients[id].x;
-          clients[id].y = data.clients[id].y;
-          if(clients[id].pointText){
-            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
-            clients[id].circle.position = new Point(clients[id].x, clients[id].y);
-          }else{
-            clients[id].pointText = new PointText(new Point(0, 0));
-            clients[id].pointText.content = clients[id].message;
-            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
-            clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
-            clients[id].circle.strokeColor = 'black';
-          }
-        }
+    socket.on('gravity updated', function(data) {
+      if( !clients[data.id].circle || !clients[data.id].pointText ){
+        return;
       }
-    });
+      if( !clients[data.id].x ){
+        clients[data.id].x = width/2;
+        clients[data.id].y = height/2;
+      }
+      var gx = data.gx;
+      var gy = data.gy;
+      var x = clients[data.id].x;
+      var y = clients[data.id].y;
+      var r = clients[data.id].r;
+      if((x <= r && gx < 0) ||
+         (width - x <= r && gx > 0)){
+        gx *= -1;
+      }
+      if((y <= r && gy < 0) ||
+         (width - y <= r && gy > 0)){
+        gy *= -1;
+      }
+      clients[data.id].x += m * gx;
+      clients[data.id].y += m * gy;
+      clients[data.id].pointText.position = new Point(x, y);
+      clients[data.id].circle.position = new Point(x, y);
+    }
+
+    socket.on('radius updated', function(data) {
+      if( clients[data.id].circle ){
+        clients[data.id].circle.radius = data.r;
+      }else{
+        clients[data.id].circle = new Shape.Circle(new Point(clients[data.id].x, clients[data.id].y), data.r);
+        clients[data.id].circle.strokeColor = 'black';
+      }
+    }
 
     function onFrame(event){
     }

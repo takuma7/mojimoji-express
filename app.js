@@ -75,6 +75,7 @@ io.sockets.on('connection', function(socket){
   socket.on('set gravity', function(data){
     clients[data.id].gx = data.gx;
     clients[data.id].gy = data.gy;
+    io.sockets.emit('gravity updated', {id:data.id, gx:data.gx, gy:data.gy});
   });
 
   socket.on('set message', function(data){
@@ -83,25 +84,3 @@ io.sockets.on('connection', function(socket){
   });
 });
 
-setInterval(function(){
-  for(var id in clients){
-    if( !clients[id].gx || !clients[id].gy || !clients[id].r) continue;
-    if( !clients[id].x ){
-      clients[id].x = width/2;
-      clients[id].y = height/2;
-    }
-    var gx = clients[id].gx;
-    var gy = clients[id].gy;
-    if((clients[id].x <= clients[id].r && gx < 0) ||
-       (width - clients[id].x <= clients[id].r && gx > 0)){
-      gx *= -1;
-    }
-    if((clients[id].y <= clients[id].r && gy < 0) ||
-       (width - clients[id].y <= clients[id].r && gy > 0)){
-      gy *= -1;
-    }
-    clients[id].x += m * gx;
-    clients[id].x += m * gy;
-  }
-  io.sockets.emit('position updated', {clients: clients});
-}, 1000/freq);
