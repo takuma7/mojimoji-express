@@ -54,6 +54,7 @@ block content
     });
 
     socket.on('setup', function(data){
+      console.log(data);
       $.each(data.clients, function(id, client){
         console.log(id);
         clients[id] = new PointText(new Point(client.x + client.r, client.y));
@@ -64,9 +65,11 @@ block content
     });
 
     socket.on('set text', function (data) {
+      console.log(data);
       if(clients[data.id]){
         console.log('text changed on ' + data.id + ' to: ' + data.text);
         clients[data.id].content = data.text;
+        console.log(clients[data.id].strokeBounds);
       }else{
         clients[data.id] = new PointText(view.center);
         clients[data.id].content = data.text;
@@ -84,6 +87,7 @@ block content
     });
 
     socket.on('move', function (data) {
+      console.log(data);
       if(clients[data.id]) {
         clients[data.id].position = new Point(data.x + data.r, data.y);
         clients[data.id].circle.position = new Point(data.x, data.y);
