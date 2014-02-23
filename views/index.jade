@@ -59,7 +59,7 @@ block content
       clients[data.id].y += m * gy;
       clients[data.id].pointText.position = new Point(x, y);
       clients[data.id].circle.position = new Point(x, y);
-    }
+    });
 
     socket.on('radius updated', function(data) {
       if( clients[data.id].circle ){
@@ -68,7 +68,7 @@ block content
         clients[data.id].circle = new Shape.Circle(new Point(clients[data.id].x, clients[data.id].y), data.r);
         clients[data.id].circle.strokeColor = 'black';
       }
-    }
+    });
 
     function onFrame(event){
     }
