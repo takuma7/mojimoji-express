@@ -23,7 +23,7 @@ block content
       clients = data.clients;
       for(var id in clients){
         if(clients[id].x && clients[id].y){
-          clients[id].pointText = new PointText(new Point(0,0));
+          clients[id].pointText = new PointText(view.center);
           clients[id].pointText.content = clients[id].message;
           clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
           clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
@@ -66,7 +66,7 @@ block content
         clients[data.id].pointText.content = data.message;
         clients[data.id].pointText.position = new Point(clients[data.id].x, clients[data.id].y);
       }else{
-        clients[data.id].pointText = new PointText(new Point(0,0));
+        clients[data.id].pointText = new PointText(view.center);
         clients[data.id].pointText.content = data.message;
         clients[data.id].pointText.position = new Point(width/2, height/2);      }
     });
