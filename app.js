@@ -81,7 +81,7 @@ io.sockets.on('connection', function(socket){
 
   socket.on('set message', function(data){
     clients[socket.id].message = data.message;
-    socket.broadcast.emit('update message', {id:socket.id, message:data.message});
+    socket.broadcast.emit('message updated', {id:socket.id, message:data.message});
   });
 });
 

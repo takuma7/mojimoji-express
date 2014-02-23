@@ -55,6 +55,16 @@ block content
       clients[data.id].circle.position = new Point(x, y);
     });
 
+    socket.on('message updated', function(data){
+      if( !clients[data.id].pointText ){
+        clients[data.id].pointText.content = data.message;
+        clients[data.id].pointText.position = new Point(clients[data.id].x, clients[data.id].y);
+      }else{
+        clients[data.id].pointText = new PointText(new Point(0,0));
+        clients[data.id].pointText.content = data.message;
+        clients[data.id].pointText.position = new Point(width/2, height/2);      }
+    });
+
     socket.on('radius updated', function(data) {
       if( clients[data.id].circle ){
         clients[data.id].circle.radius = data.r;
