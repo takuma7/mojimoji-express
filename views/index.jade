@@ -59,6 +59,7 @@ block content
         clients[id] = new PointText(new Point(client.x - client.r, client.y));
         clients[id].content = client.text;
         clients[id].circle = new Shape.Circle(new Point(client.x, client.y), client.r);
+        clients[id].circle.strokeColor = 'black';
       });
     });
 
@@ -88,6 +89,7 @@ block content
       }else{
         clients[data.id] = new PointText(data.x - data.r, data.y);
         clients[data.id].circle = new Shape.Circle(new Point(data.x, data.y), data.r);
+        clients[data.id].circle.strokeColor = 'black';
       }
     });
 
@@ -97,8 +99,9 @@ block content
       socket.emit('move', {
         x:me.position.x,
         y:me.position.y,
-        vx:0,
-        vy:0
+        fx:0,
+        fy:0,
+        r: 20
       });
     }
     $('#up').click(function(){
