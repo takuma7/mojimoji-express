@@ -12,10 +12,14 @@ block content
 
     var clients = {};
     var m = 10;
+    var width = 800;
+    var height = 600;
 
     socket.on('init', function (data) {
       console.log(data);
       $('#myCanvas').css({width:data.canvas.width + 'px', height:data.canvas.height + 'px'});
+      width = data.canvas.width;
+      height = data.canvas.height;
       clients = data.clients;
       for(var id in clients){
         if(clients[id].x && clients[id].y){
