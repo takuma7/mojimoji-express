@@ -53,12 +53,46 @@ var clients = {};
 var width = 800;
 var height = 600;
 var freq = 24;
+var attackDuration = 3000; //[ms]
+var chargeDuration = 3000; //[ms]
+var shieldDuration = 3000; //[ms]
+
+var endCharging = function(client){
+  if(client.chargingTime >= chargeDuration){
+    client.isAttackable = true;
+    client.isCharging = false;
+    client.chargingTime = 0;
+  }else{
+    client.isCharging = false;
+  }
+}
+
+var endShielding = function(client){
+  client.isShielding = false;
+  client.shieldingTime = 0;
+}
 
 io.sockets.on('connection', function(socket){
   console.log(socket.id);
   clients[socket.id] = {id: socket.id};
   clients[socket.id].r = 20;
+  clients[socket.id].name = 'player' + clients.length;
 
+  clients[socket.id].isAttacking = false;
+  clients[socket.id].attackCenterX = 0;
+  clients[socket.id].attackCenterY = 0;
+  clients[socket.id].attackR = 0;
+
+  clients[socket.id].isCharging = false;
+  clients[socket.id].chargingTime = 0;
+  clients[socket.id].isAttackable = false;
+
+  clients[socket.id].isShielding = false;
+  clients[socket.id].shieldingTime = 0;
+
+  clients[socket.id].hp = 100;
+
+  // initialize
   socket.emit('init', {canvas: {width: width, height: height}, clients: clients});
   socket.broadcast.emit('client added', {id: socket.id});
 
@@ -79,9 +113,34 @@ io.sockets.on('connection', function(socket){
     // io.sockets.emit('gravity updated', {id:data.id, gx:data.gx, gy:data.gy});
   });
 
-  socket.on('set message', function(data){
-    clients[socket.id].message = data.message;
-    socket.broadcast.emit('message updated', {id:socket.id, message:data.message});
+  socket.on('set name', function(data){
+    clients[socket.id].name = data.name;
+    socket.broadcast.emit('name updated', {id:socket.id, name:data.name});
+  });
+
+  // charging
+  socket.on('start charging', function(data){
+    if(clients[data.id].isAttacking || clients[data.id].isShielding) return;
+    clients[data.id].isCharging = true;
+  });
+  socket.on('end charging', function(data){
+    endCharging(clients[data.id]);
+  });
+
+  // shielding
+  socket.on('start shielding', function(data){
+    if(clients[data.id].isCharging) return;
+    clients[data.id].isShielding = true;
+  });
+
+  socket.on('end shielding', function(data){
+    endShielding(clients[data.id]);
+  });
+
+  socket.on('attack', function(data){
+    if(clients[data.id].isAttackable){
+      clients[data.id].isAttacking = true;
+    }
   });
 });
 
@@ -90,6 +149,7 @@ var friction = -0.9;
 
 setInterval(function(){
   for(var id in clients){
+    // manage position
     if( !clients[id].gx || !clients[id].gy || !clients[id].r) continue;
     if( !clients[id].x ){
       clients[id].x = width/2;
@@ -133,6 +193,52 @@ setInterval(function(){
     clients[id].vy = vy;
     clients[id].x  = x;
     clients[id].y  = y;
+
+    // manage charge
+    if(clients[id].isCharging){
+      clients[id].chargingTime += 1000/freq;
+      if(clients[id].chargingTime >= chargingDuration){
+        endCharging(clients[id]);
+      }
+    }
+    // manage shield
+    if(clients[id].isShielding){
+      clients[id].shieldingTime += 1000/freq;
+      if(clients[id].shieldingTime >= shiedDuration){
+        endShielding(clients[id]);
+      }
+    }
+    // manage attack
+    if(clients[id].isAttacking && clients[id].isAttackable){
+      clients[id].isAttackable = false;
+      clients[id].attackCenterX = x;
+      clients[id].attackCenterY = y;
+      clients[id].attackR = 0;
+    }
+    if(clients[id].isAttacking && !clients[id].isAttackable){
+      clients[id].attackR += 1000.0/clients[id].r;
+      clients[id].attackingTime += 1000/freq;
+      if(clients[id].attackR >= attackDuration){
+        clients[id].isAttacking = false;
+        clients[id].isAttackable = false;
+        clients[id].attackR = 0;
+      }else{
+        for(var otherId in clients){
+          if(id == otherId) continue;
+          if( !clients[id].gx || !clients[id].gy || !clients[id].r) continue;
+          var dx = clients[id].attackX - clients[otherId].x;
+          var dy = clients[id].attackY - clients[otherId].y;
+          var dist = dx*dx + dy*dy;
+          var dnear = clients[id].attackR - clients[otherId].r;
+          dnear *= dnear;
+          var dfar = clients[id].attackR + clients[otherId].r;
+          dfar *= dfar;
+          if( dist > dnear && dist < dfar){
+            clients[otherId].hp -= 1;
+          }
+        }
+      }
+    }
   }
-  io.sockets.emit('position updated', {clients: clients});
+  io.sockets.emit('update', {clients: clients});
 }, 1000/freq);

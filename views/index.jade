@@ -24,7 +24,7 @@ block content
       for(var id in clients){
         if(clients[id].x && clients[id].y){
           clients[id].pointText = new PointText(view.center);
-          clients[id].pointText.content = clients[id].message;
+          clients[id].pointText.content = clients[id].name;
           clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
           clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
           clients[id].circle.strokeColor = 'black';
@@ -32,40 +32,12 @@ block content
       }
     });
 
-    socket.on('gravity updated', function(data) {
-      if( !clients[data.id] || !clients[data.id].circle || !clients[data.id].pointText ){
-        return;
-      }
-      if( !clients[data.id].x ){
-        clients[data.id].x = width/2;
-        clients[data.id].y = height/2;
-      }
-      var gx = data.gx;
-      var gy = data.gy;
-      var x = clients[data.id].x;
-      var y = clients[data.id].y;
-      var r = clients[data.id].r;
-      if((x <= r && gx < 0) ||
-         (width - x <= r && gx > 0)){
-        gx *= -1;
-      }
-      if((y <= r && gy < 0) ||
-         (width - y <= r && gy > 0)){
-        gy *= -1;
-      }
-      clients[data.id].x += m * gx;
-      clients[data.id].y += m * gy;
-      clients[data.id].pointText.position = new Point(x, y);
-      clients[data.id].circle.position = new Point(x, y);
-      console.log(clients[data.id]);
-    });
-
-    socket.on('position updated', function (data) {
+    socket.on('update', function (data) {
       for(var id in data.clients){
         if( data.clients[id].x && data.clients[id].y ){
           clients[id].x = data.clients[id].x;
           clients[id].y = data.clients[id].y;
-          if(clients[id].pointText){
+          if(clients[id].pointText && clients[id].circle){
             clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
             clients[id].circle.position = new Point(clients[id].x, clients[id].y);
           }else{
@@ -79,15 +51,16 @@ block content
       }
     });
 
-    socket.on('message updated', function(data){
+    socket.on('name updated', function(data){
       console.log(data);
       console.log(clients);
+      clients[data.id].name = data.name;
       if( clients[data.id].pointText ){
-        clients[data.id].pointText.content = data.message;
+        clients[data.id].pointText.content = data.name;
         clients[data.id].pointText.position = new Point(clients[data.id].x, clients[data.id].y);
       }else{
         clients[data.id].pointText = new PointText(view.center);
-        clients[data.id].pointText.content = data.message;
+        clients[data.id].pointText.content = data.name;
         clients[data.id].pointText.position = new Point(width/2, height/2);        }
     });
 
@@ -99,9 +72,6 @@ block content
         clients[data.id].circle.strokeColor = 'black';
       }
     });
-
-    function onFrame(event){
-    }
 
     socket.on('client added', function(data){
       console.log('user connected: ' + data.id);
