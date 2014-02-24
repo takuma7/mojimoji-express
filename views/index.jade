@@ -59,7 +59,8 @@ block content
       clients[data.id].circle.position = new Point(x, y);
       console.log(clients[data.id]);
     });
-   socket.on('position updated', function (data) {
+
+    socket.on('position updated', function (data) {
       for(var id in data.clients){
         if( data.clients[id].x && data.clients[id].y ){
           clients[id].x = data.clients[id].x;
@@ -75,7 +76,7 @@ block content
             clients[id].circle.strokeColor = 'black';
           }
         }
-       }
+      }
     });
 
     socket.on('message updated', function(data){
@@ -87,7 +88,7 @@ block content
       }else{
         clients[data.id].pointText = new PointText(view.center);
         clients[data.id].pointText.content = data.message;
-        clients[data.id].pointText.position = new Point(width/2, height/2);      }
+        clients[data.id].pointText.position = new Point(width/2, height/2);        }
     });
 
     socket.on('radius updated', function(data) {
