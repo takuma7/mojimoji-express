@@ -102,7 +102,7 @@ setInterval(function(){
     var gx = clients[id].gx;
     var gy = clients[id].gy;
     var vx = clients[id].vx;
-    var vy = clietns[id].vy;
+    var vy = clients[id].vy;
     var x  = clients[id].x;
     var y  = clients[id].y;
     var r  = clients[id].r;
