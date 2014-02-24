@@ -52,7 +52,6 @@ server.listen(app.get('port'), function(){
 var clients = {};
 var width = 800;
 var height = 600;
-var m = 10;
 var freq = 24;
 
 io.sockets.on('connection', function(socket){
@@ -86,6 +85,9 @@ io.sockets.on('connection', function(socket){
   });
 });
 
+var m = 10;
+var friction = -0.9;
+
 setInterval(function(){
   for(var id in clients){
     if( !clients[id].gx || !clients[id].gy || !clients[id].r) continue;
@@ -93,18 +95,44 @@ setInterval(function(){
       clients[id].x = width/2;
       clients[id].y = height/2;
     }
+    if( !clients[id].vx ){
+      clients[id].vx = 0;
+      clients[id].vy = 0;
+    }
     var gx = clients[id].gx;
     var gy = clients[id].gy;
-    if((clients[id].x <= clients[id].r && gx < 0) ||
-       (width - clients[id].x <= clients[id].r && gx > 0)){
-      gx *= -1;
+    var vx = clients[id].vx;
+    var vy = clietns[id].vy;
+    var x  = clients[id].x;
+    var y  = clients[id].y;
+    var r  = clients[id].r;
+
+    vx += gx;
+    vy -= gy;
+    x  += vx;
+    y  += vy;
+
+    if( x + r > width ){
+      x = width - r;
+      vx *= friction;
     }
-    if((clients[id].y <= clients[id].r && gy > 0) ||
-       (height - clients[id].y <= clients[id].r && gy < 0)){
-      gy *= -1;
+    if( x - r < 0 ){
+      x = r;
+      vx *= friction;
     }
-    clients[id].x += m * gx;
-    clients[id].y += m * (-gy);
+    if( y + r > height){
+      y = height - r;
+      vy *= friction;
+    }
+    if( y - r < 0){
+      y = r;
+      vy *= friction;
+    }
+
+    clients[id].vx = vx;
+    clients[id].vy = vy;
+    clients[id].x  = x;
+    clients[id].y  = y;
   }
   io.sockets.emit('position updated', {clients: clients});
 }, 1000/freq);
