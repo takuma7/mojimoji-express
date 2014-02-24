@@ -100,11 +100,11 @@ setInterval(function(){
       gx *= -1;
     }
     if((clients[id].y <= clients[id].r && gy < 0) ||
-       (width - clients[id].y <= clients[id].r && gy > 0)){
+       (height - clients[id].y <= clients[id].r && gy > 0)){
       gy *= -1;
     }
     clients[id].x += m * gx;
-    clients[id].y += m * gy;
+    clients[id].y += m * (-gy);
   }
   io.sockets.emit('position updated', {clients: clients});
 }, 1000/freq);
