@@ -59,6 +59,24 @@ block content
       clients[data.id].circle.position = new Point(x, y);
       console.log(clients[data.id]);
     });
+   socket.on('position updated', function (data) {
+      for(var id in data.clients){
+        if( data.clients[id].x && data.clients[id].y ){
+          clients[id].x = data.clients[id].x;
+          clients[id].y = data.clients[id].y;
+          if(clients[id].pointText){
+            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+            clients[id].circle.position = new Point(clients[id].x, clients[id].y);
+          }else{
+            clients[id].pointText = new PointText(new Point(0, 0));
+            clients[id].pointText.content = clients[id].message;
+            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+            clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
+            clients[id].circle.strokeColor = 'black';
+          }
+        }
+       }
+    });
 
     socket.on('message updated', function(data){
       console.log(data);
