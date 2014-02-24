@@ -58,6 +58,7 @@ var freq = 24;
 io.sockets.on('connection', function(socket){
   console.log(socket.id);
   clients[socket.id] = {id: socket.id};
+  clients[socket.id].r = 20;
 
   socket.emit('init', {canvas: {width: width, height: height}, clients: clients});
   socket.broadcast.emit('client added', {id: socket.id});
@@ -103,7 +104,7 @@ setInterval(function(){
       gy *= -1;
     }
     clients[id].x += m * gx;
-    clients[id].x += m * gy;
+    clients[id].y += m * gy;
   }
   io.sockets.emit('position updated', {clients: clients});
 }, 1000/freq);
