@@ -99,8 +99,8 @@ setInterval(function(){
        (width - clients[id].x <= clients[id].r && gx > 0)){
       gx *= -1;
     }
-    if((clients[id].y <= clients[id].r && gy < 0) ||
-       (height - clients[id].y <= clients[id].r && gy > 0)){
+    if((clients[id].y <= clients[id].r && gy > 0) ||
+       (height - clients[id].y <= clients[id].r && gy < 0)){
       gy *= -1;
     }
     clients[id].x += m * gx;
