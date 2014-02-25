@@ -199,7 +199,7 @@ setInterval(function(){
     // manage charge
     if(clients[id].isCharging){
       clients[id].chargingTime += 1000/freq;
-      if(clients[id].chargingTime >= chargingDuration){
+      if(clients[id].chargingTime >= chargeDuration){
         endCharging(clients[id]);
       }
     }
