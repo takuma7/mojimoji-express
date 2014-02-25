@@ -37,14 +37,41 @@ block content
         if( data.clients[id].x && data.clients[id].y ){
           clients[id].x = data.clients[id].x;
           clients[id].y = data.clients[id].y;
-          if(clients[id].pointText && clients[id].circle){
-            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
-            clients[id].circle.position = new Point(clients[id].x, clients[id].y);
-          }else{
+          if(!clients[id].pointText){
             clients[id].pointText = new PointText(new Point(0, 0));
-            clients[id].pointText.content = clients[id].message;
-            clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+            clients[id].pointText.content = clients[id].name;
+          }
+          if(!clients[id].circle){
             clients[id].circle = new Shape.Circle(new Point(clients[id].x, clients[id].y), clients[id].r);
+            clients[id].circle.strokeColor = 'black';
+          }
+          clients[id].pointText.position = new Point(clients[id].x, clients[id].y);
+          clients[id].circle.position = new Point(clients[id].x, clients[id].y);
+          clients[id].circle.radius = clients[id].r;
+          //TODO: implement below
+          if(clients[id].isAttacking){
+            if(!clients[id].attackCircle){
+              clients[id].attackCircle = new Shape.Circle(new Point(clients[id].attackX, clients[id].attackY), clients[id].attackR);
+            }
+          }else{
+            if(clients[id].attackCircle){
+              clients[id].attackCircle.remove();
+              delete clients[id].attackCircle;
+            }
+          }
+          if(clients[id].isAttackable){
+            clients[id].circle.strokeColor = 'red';
+          }else{
+          }
+          if(clients[id].isCharging){
+            clients[id].circle.strokeColor = 'green';
+          }else{
+          }
+          if(clients[id].isShielding){
+            clients[id].circle.strokeColor = 'blue';
+          }else{
+          }
+          if(!clients[id].isShielding && !clients[id].isCharging){
             clients[id].circle.strokeColor = 'black';
           }
         }
@@ -75,7 +102,7 @@ block content
 
     socket.on('client added', function(data){
       console.log('user connected: ' + data.id);
-      clients[data.id] = {id: data.id};
+      clients[data.id] = data.client;
     });
     socket.on('client deleted', function(data){
       console.log('user disconnected: ' + data.id);

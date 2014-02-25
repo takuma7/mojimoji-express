@@ -74,8 +74,11 @@ var endShielding = function(client){
 
 io.sockets.on('connection', function(socket){
   console.log(socket.id);
+  clients[socket.id].id = socket.id;
   clients[socket.id] = {id: socket.id};
-  clients[socket.id].r = 20;
+  clients[socket.id].r = 50;
+  clients[socket.id].maxR = 50;
+  clients[socket.id].minR = 10;
   clients[socket.id].name = 'player' + clients.length;
 
   clients[socket.id].isAttacking = false;
@@ -94,7 +97,7 @@ io.sockets.on('connection', function(socket){
 
   // initialize
   socket.emit('init', {canvas: {width: width, height: height}, clients: clients});
-  socket.broadcast.emit('client added', {id: socket.id});
+  socket.broadcast.emit('client added', {id: socket.id, client: clients[socket.id]});
 
   socket.on('disconnect', function(){
     delete clients[socket.id];
@@ -120,26 +123,26 @@ io.sockets.on('connection', function(socket){
 
   // charging
   socket.on('start charging', function(data){
-    if(clients[data.id].isAttacking || clients[data.id].isShielding) return;
-    clients[data.id].isCharging = true;
+    if(clients[socket.id].isAttacking || clients[socket.id].isShielding) return;
+    clients[socket.id].isCharging = true;
   });
   socket.on('end charging', function(data){
-    endCharging(clients[data.id]);
+    endCharging(clients[socket.id]);
   });
 
   // shielding
   socket.on('start shielding', function(data){
-    if(clients[data.id].isCharging) return;
-    clients[data.id].isShielding = true;
+    if(clients[socket.id].isCharging) return;
+    clients[socket.id].isShielding = true;
   });
 
   socket.on('end shielding', function(data){
-    endShielding(clients[data.id]);
+    endShielding(clients[socket.id]);
   });
 
   socket.on('attack', function(data){
-    if(clients[data.id].isAttackable){
-      clients[data.id].isAttacking = true;
+    if(clients[socket.id].isAttackable){
+      clients[socket.id].isAttacking = true;
     }
   });
 });
@@ -233,8 +236,9 @@ setInterval(function(){
           dnear *= dnear;
           var dfar = clients[id].attackR + clients[otherId].r;
           dfar *= dfar;
-          if( dist > dnear && dist < dfar){
+          if( dist > dnear && dist < dfar && !clients[otherId].isShielding){
             clients[otherId].hp -= 1;
+            clients[otherId].r = clients[otherId].minR + (clients[otherId].maxR - clients[otherId].minR)*clients[otherId].hp/100
           }
         }
       }
