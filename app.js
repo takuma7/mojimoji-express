@@ -74,7 +74,6 @@ var endShielding = function(client){
 
 io.sockets.on('connection', function(socket){
   console.log(socket.id);
-  clients[socket.id].id = socket.id;
   clients[socket.id] = {id: socket.id};
   clients[socket.id].r = 50;
   clients[socket.id].maxR = 50;
