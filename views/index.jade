@@ -51,31 +51,31 @@ block content
           clients[id].circle.position.y = clients[id].y;
           clients[id].circle.radius = clients[id].r;
           //TODO: implement below
-          if(clients[id].isAttacking){
-            if(!clients[id].attackCircle){
-              clients[id].attackCircle = new Shape.Circle(new Point(clients[id].attackX, clients[id].attackY), clients[id].attackR);
-            }
-          }else{
-            if(clients[id].attackCircle){
-              clients[id].attackCircle.remove();
-              delete clients[id].attackCircle;
-            }
-          }
-          if(clients[id].isAttackable){
-            clients[id].circle.strokeColor = 'red';
-          }else{
-          }
-          if(clients[id].isCharging){
-            clients[id].circle.strokeColor = 'green';
-          }else{
-          }
-          if(clients[id].isShielding){
-            clients[id].circle.strokeColor = 'blue';
-          }else{
-          }
-          if(!clients[id].isShielding && !clients[id].isCharging){
-            clients[id].circle.strokeColor = 'black';
-          }
+          // if(clients[id].isAttacking){
+            // if(!clients[id].attackCircle){
+              // clients[id].attackCircle = new Shape.Circle(new Point(clients[id].attackX, clients[id].attackY), clients[id].attackR);
+            // }
+          // }else{
+            // if(clients[id].attackCircle){
+              // clients[id].attackCircle.remove();
+              // delete clients[id].attackCircle;
+            // }
+          // }
+          // if(clients[id].isAttackable){
+            // clients[id].circle.strokeColor = 'red';
+          // }else{
+          // }
+          // if(clients[id].isCharging){
+            // clients[id].circle.strokeColor = 'green';
+          // }else{
+          // }
+          // if(clients[id].isShielding){
+            // clients[id].circle.strokeColor = 'blue';
+          // }else{
+          // }
+          // if(!clients[id].isShielding && !clients[id].isCharging){
+            // clients[id].circle.strokeColor = 'black';
+          // }
         }
       }
     });
