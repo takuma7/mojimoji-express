@@ -206,7 +206,7 @@ setInterval(function(){
     // manage shield
     if(clients[id].isShielding){
       clients[id].shieldingTime += 1000/freq;
-      if(clients[id].shieldingTime >= shiedDuration){
+      if(clients[id].shieldingTime >= shieldDuration){
         endShielding(clients[id]);
       }
     }
